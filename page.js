@@ -21,7 +21,42 @@ function max(nums) {
     return Math.max.apply(Math, nums.filter(function(x) { return x; }));
 }
 
-function getPositions(callback) {
+function getWidths(body) {
+    return widths = [
+        document.documentElement.clientWidth,
+        body ? body.scrollWidth : 0,
+        document.documentElement.scrollWidth,
+        body ? body.offsetWidth : 0,
+        document.documentElement.offsetWidth
+    ]
+}
+
+function getHeights(body) {
+    return heights = [
+        document.documentElement.clientHeight,
+        body ? body.scrollHeight : 0,
+        document.documentElement.scrollHeight,
+        body ? body.offsetHeight : 0,
+        document.documentElement.offsetHeight
+    ]
+}
+
+async function getFullHeight(windowHeight, currentHeight) {
+    let yPos = currentHeight - windowHeight;
+    window.scrollTo(0, yPos);
+    await new Promise(resolve => setTimeout(resolve, 800))
+    let newHeight = max(getHeights());
+    while (newHeight > currentHeight) {
+        currentHeight = newHeight;
+        yPos = currentHeight - windowHeight;
+        window.scrollTo(0, yPos);
+        await new Promise(resolve => setTimeout(resolve, 800))
+        newHeight = max(getHeights());
+    }
+    return currentHeight;
+}
+
+async function getPositions(callback) {
 
     var body = document.body,
         originalBodyOverflowYStyle = body ? body.style.overflowY : '',
@@ -35,26 +70,10 @@ function getPositions(callback) {
         body.style.overflowY = 'visible';
     }
 
-    var widths = [
-            document.documentElement.clientWidth,
-            body ? body.scrollWidth : 0,
-            document.documentElement.scrollWidth,
-            body ? body.offsetWidth : 0,
-            document.documentElement.offsetWidth
-        ],
-        heights = [
-            document.documentElement.clientHeight,
-            body ? body.scrollHeight : 0,
-            document.documentElement.scrollHeight,
-            body ? body.offsetHeight : 0,
-            document.documentElement.offsetHeight
-            // (Array.prototype.slice.call(document.getElementsByTagName('*'), 0)
-            //  .reduce(function(val, elt) {
-            //      var h = elt.offsetHeight; return h > val ? h : val;
-            //  }, 0))
-        ],
+    var widths = getWidths(body),
+        heights = getHeights(body),
         fullWidth = max(widths),
-        fullHeight = max(heights),
+        currentHeight = max(heights),
         windowWidth = window.innerWidth,
         windowHeight = window.innerHeight,
         arrangements = [],
@@ -63,9 +82,11 @@ function getPositions(callback) {
         scrollPad = 200,
         yDelta = windowHeight - (windowHeight > scrollPad ? scrollPad : 0),
         xDelta = windowWidth,
-        yPos = fullHeight - windowHeight,
-        xPos,
-        numArrangements;
+        numArrangements,
+        fullHeight = await getFullHeight(windowHeight, currentHeight);
+        
+    var yPos = fullHeight - windowHeight;
+    var xPos;
 
     // During zooming, there can be weird off-by-1 types of things...
     if (fullWidth <= xDelta + 1) {

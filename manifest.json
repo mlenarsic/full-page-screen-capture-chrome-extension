@@ -1,10 +1,10 @@
 {
-  "name": "Full Page Screen Capture",
+  "name": "MIL Screen Capture",
   "version": "1.0.1",
   "manifest_version": 2,
   "description": "Screen capture your current page in entirety and reliably!",
   "browser_action": {
-    "default_icon": "icon-999.png",
+    "default_icon": "INspectre_icon.png",
     "default_popup": "popup.html"
   },
   "commands": {
@@ -16,8 +16,8 @@
   },
   "permissions": [ "activeTab", "storage", "unlimitedStorage" ],
   "icons": {
-    "16": "icon16-999.png",
-    "48": "icon48-999.png",
-    "128": "icon128-999.png"
+    "16": "INspectre_icon.png",
+    "48": "INspectre_icon.png",
+    "128": "INspectre_icon.png"
   }
 }
